@@ -1,5 +1,8 @@
 /*    /index.html   200
+<<<<<<< HEAD
 
 # Ensure proper MIME types for JavaScript modules
 /*.js    200!    Content-Type: application/javascript
 /*.mjs   200!    Content-Type: application/javascript
+=======
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec

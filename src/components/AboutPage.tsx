@@ -326,13 +326,22 @@ export default function AboutPage() {
 
             <div
               ref={(el) => (sectionRefs.current[8] = el)}
+<<<<<<< HEAD
               className={`bg-white rounded-2xl shadow-lg p-6 border-l-4 border-pink-500 hover:shadow-xl transition-all duration-700 delay-225 ${
+=======
+              className={`bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition-all duration-700 delay-225 ${
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
                 visibleSections.has(8) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               }`}
             >
               <div className="flex items-start gap-4">
+<<<<<<< HEAD
                 <div className="flex-shrink-0 w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center">
                   <Heart className="w-6 h-6 text-pink-600" />
+=======
+                <div className="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-purple-600" />
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
                 </div>
                 <div>
                   <p className="text-base text-gray-800 leading-relaxed">

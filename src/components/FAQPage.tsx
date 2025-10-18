@@ -52,21 +52,37 @@ export default function FAQPage() {
   };
 
   return (
+<<<<<<< HEAD
     <section className="py-20 bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 min-h-screen">
       {/* Background Pattern */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.05%22%3E%3Ccircle cx=%2230%22 cy=%2230%22 r=%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-200/20 to-cyan-200/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-cyan-200/20 to-blue-300/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+=======
+    <section className="py-20 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
+      {/* Background Pattern */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.05%22%3E%3Ccircle cx=%2230%22 cy=%2230%22 r=%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-200/20 to-purple-200/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-purple-200/20 to-blue-300/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
       </div>
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
+<<<<<<< HEAD
           <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
             <HelpCircle className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-700 bg-clip-text text-transparent mb-4">
+=======
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
+            <HelpCircle className="w-10 h-10 text-white" />
+          </div>
+          <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
             {t('faq.title')}
           </h1>
           <p className="text-xl text-gray-600">
@@ -104,7 +120,11 @@ export default function FAQPage() {
                   onClick={() => handleCategoryChange(category.id)}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
                     selectedCategory === category.id
+<<<<<<< HEAD
                       ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg transform scale-105'
+=======
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105'
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
                       : 'bg-white/70 text-gray-700 hover:bg-white hover:shadow-md hover:scale-105'
                   }`}
                 >
@@ -144,7 +164,11 @@ export default function FAQPage() {
           <div className="space-y-8">
             {Object.entries(groupedFaqItems).map(([categoryId, categoryData]) => (
               <div key={categoryId} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 overflow-hidden">
+<<<<<<< HEAD
                 <div className="bg-gradient-to-r from-blue-50 to-cyan-50 px-6 py-4 border-b border-gray-200">
+=======
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-4 border-b border-gray-200">
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
                   <h3 className="text-lg font-bold text-gray-900">
                     {categoryData.label} ({categoryData.items.length})
                   </h3>
@@ -184,7 +208,11 @@ export default function FAQPage() {
         ) : (
           // Affichage pour une catégorie spécifique
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 overflow-hidden">
+<<<<<<< HEAD
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 px-6 py-4 border-b border-gray-200">
+=======
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-4 border-b border-gray-200">
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
               <h3 className="text-lg font-bold text-gray-900">
                 {categoriesWithTranslations.find(c => c.id === selectedCategory)?.label} ({filteredFaqItems.length})
               </h3>
@@ -222,7 +250,11 @@ export default function FAQPage() {
         )}
 
         {/* Appel à l'action vers le contact */}
+<<<<<<< HEAD
         <div className="mt-12 bg-gradient-to-r from-blue-500 via-cyan-600 to-blue-700 rounded-2xl shadow-2xl p-8 text-center text-white relative overflow-hidden">
+=======
+        <div className="mt-12 bg-gradient-to-r from-blue-500 via-purple-600 to-indigo-600 rounded-2xl shadow-2xl p-8 text-center text-white relative overflow-hidden">
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
           {/* Décoration de fond */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-2xl"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-2xl"></div>

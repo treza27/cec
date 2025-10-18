@@ -1,5 +1,9 @@
 import React from 'react';
+<<<<<<< HEAD
 import { ArrowLeft, Package, Calendar, MapPin, Weight, Truck, Eye, CheckCircle, Clock, AlertTriangle, Ship, Users, Image as ImageIcon, ChevronLeft, ChevronRight, X, Archive } from 'lucide-react';
+=======
+import { ArrowLeft, Package, Calendar, MapPin, Weight, Truck, Eye, CheckCircle, Clock, AlertTriangle, Ship, Users, Image as ImageIcon, ChevronLeft, ChevronRight, X } from 'lucide-react';
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
 import { InventoryItem } from '../types';
 import { supabase } from '../utils/supabase';
 import { getDepartureProgressPercentage } from '../utils/statusHelpers';
@@ -174,11 +178,18 @@ const getGlobalProgress = (packages: InventoryItem[]): number => {
 };
 
 export default function TrackingOverview({ packages, onSelectDeparture, onSelectNoDepartureGroup, onBack }: TrackingOverviewProps) {
+<<<<<<< HEAD
 
   const [supabaseImages, setSupabaseImages] = React.useState<{ [key: number]: any[] }>({});
   const [viewingImages, setViewingImages] = React.useState<{ images: any[], itemId: number } | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
   const [activeTab, setActiveTab] = React.useState<'active' | 'archived'>('active');
+=======
+  
+  const [supabaseImages, setSupabaseImages] = React.useState<{ [key: number]: any[] }>({});
+  const [viewingImages, setViewingImages] = React.useState<{ images: any[], itemId: number } | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
 
   const clientInfo = packages[0]; // Toutes les packages ont les mêmes infos client
 
@@ -344,6 +355,7 @@ export default function TrackingOverview({ packages, onSelectDeparture, onSelect
 
   const departureGroups = groupPackagesByDeparture();
 
+<<<<<<< HEAD
   // Séparer les groupes de départs en actifs et archivés
   const activeDepartureGroups = departureGroups.filter(group => group.globalStatus !== 'archive');
   const archivedDepartureGroups = departureGroups.filter(group => group.globalStatus === 'archive');
@@ -351,6 +363,8 @@ export default function TrackingOverview({ packages, onSelectDeparture, onSelect
   // Déterminer quels groupes afficher selon l'onglet actif
   const displayedDepartureGroups = activeTab === 'active' ? activeDepartureGroups : archivedDepartureGroups;
 
+=======
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
   return (
     <section className="py-12 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
       {/* Modal de visualisation des images */}
@@ -520,6 +534,7 @@ export default function TrackingOverview({ packages, onSelectDeparture, onSelect
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* Onglets pour séparer les départs actifs et archivés */}
         <div className="mb-6">
           <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 p-2">
@@ -586,6 +601,11 @@ export default function TrackingOverview({ packages, onSelectDeparture, onSelect
             </div>
           ) : (
             displayedDepartureGroups.map((group, groupIndex) => {
+=======
+        {/* Groupes de départ redessinés */}
+        <div className="space-y-4">
+          {departureGroups.map((group, groupIndex) => {
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
             const globalStatusStyle = getStatusStyle(group.globalStatus);
             const StatusIcon = globalStatusStyle.icon;
             return (
@@ -772,8 +792,12 @@ export default function TrackingOverview({ packages, onSelectDeparture, onSelect
 
               </div>
             );
+<<<<<<< HEAD
           })
           )}
+=======
+          })}
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
         </div>
       </div>
     </section>

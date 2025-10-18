@@ -6,11 +6,14 @@ import './i18n';
 import App from './App.tsx';
 import './index.css';
 
+<<<<<<< HEAD
 console.log('🚀 Application starting...');
 console.log('Environment:', import.meta.env.MODE);
 console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL ? '✅ Configured' : '❌ Missing');
 console.log('Supabase Key:', import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Configured' : '❌ Missing');
 
+=======
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
 // Configuration du client React Query
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,6 +29,7 @@ const queryClient = new QueryClient({
   },
 });
 
+<<<<<<< HEAD
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {
@@ -71,3 +75,14 @@ try {
   `;
   throw error;
 }
+=======
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </ErrorBoundary>
+  </StrictMode>
+);
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
