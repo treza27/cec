@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Correction globale pour éviter la coupure des lettres avec jambages descendants */
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.4 !important;
+  }
+  
+  p, span, div {
+    line-height: 1.6 !important;
+  }
+  
+  /* Assurer un padding vertical minimal pour tous les textes */
+  .text-4xl, .text-5xl, .text-6xl {
+    padding-top: 0.125rem;
+    padding-bottom: 0.125rem;
+  }
+  
+  .text-2xl, .text-3xl {
+    padding-top: 0.0625rem;
+    padding-bottom: 0.0625rem;
+  }
+}
