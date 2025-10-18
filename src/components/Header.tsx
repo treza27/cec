@@ -9,7 +9,11 @@ interface HeaderProps {
 
 export default function Header({ currentPage = 'home', onNavigate }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+<<<<<<< HEAD
+  const { t } = useTranslation();
+=======
   const { t, i18n } = useTranslation();
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
 
   const menuItems = [
     { id: 'home', label: t('navigation.home'), href: '#' },
@@ -20,11 +24,14 @@ export default function Header({ currentPage = 'home', onNavigate }: HeaderProps
     { id: 'contact', label: t('navigation.contact'), href: '#contact' },
   ];
 
+<<<<<<< HEAD
+=======
   const toggleLanguage = () => {
     const newLang = i18n.language === 'fr' ? 'en' : 'fr';
     i18n.changeLanguage(newLang);
   };
 
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
   return (
     <header className="bg-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,6 +65,8 @@ export default function Header({ currentPage = 'home', onNavigate }: HeaderProps
             ))}
           </nav>
 
+<<<<<<< HEAD
+=======
           {/* Language Toggle */}
           <div className="hidden lg:flex items-center">
             <button
@@ -69,6 +78,7 @@ export default function Header({ currentPage = 'home', onNavigate }: HeaderProps
             </button>
           </div>
 
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
           {/* Mobile menu button */}
           <button
             className="md:hidden p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100"
@@ -98,6 +108,8 @@ export default function Header({ currentPage = 'home', onNavigate }: HeaderProps
                   {item.label}
                 </button>
               ))}
+<<<<<<< HEAD
+=======
               <div className="pt-4 border-t border-gray-200 space-y-2">
                 <button
                   onClick={toggleLanguage}
@@ -107,6 +119,7 @@ export default function Header({ currentPage = 'home', onNavigate }: HeaderProps
                   Langue: {i18n.language.toUpperCase()}
                 </button>
               </div>
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
             </nav>
           </div>
         )}

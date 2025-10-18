@@ -241,7 +241,11 @@ const WhyChooseUs = memo(function WhyChooseUs() {
             "provider": {
               "@type": "Organization",
               "name": "Continental Express Cargo",
+<<<<<<< HEAD
+              "url": "https://cec-mg.com",
+=======
               "url": "https://continental-express-cargo.com",
+>>>>>>> cf6006487c52e715d9e65e259f4485990e3a63ec
               "telephone": "+261340725292",
               "email": "cec.sales52@gmail.com"
             },
