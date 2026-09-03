@@ -1,0 +1,444 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Upload, X, Eye, AlertCircle, CheckCircle, Image as ImageIcon } from 'lucide-react';
+import { supabase } from '../../utils/supabase';
+import { optimizeImage } from '../../utils/imageOptimization';
+
+interface SimpleImageUploadProps {
+  inventaireId: number;
+  imageType?: 'general' | 'msds' | 'chargement' | 'suivi_maritime' | 'reception';
+  onImagesChange?: (imageCount: number) => void;
+  maxImages?: number;
+  className?: string;
+}
+
+interface UploadedImage {
+  id: string;
+  file_name: string;
+  file_path: string;
+  file_size: number;
+  mime_type: string;
+  image_type: string;
+  created_at: string;
+}
+
+export default function SimpleImageUpload({
+  inventaireId,
+  imageType = 'general',
+  onImagesChange,
+  maxImages = 10,
+  className = ''
+}: SimpleImageUploadProps) {
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const isCompactMode = className?.includes('compact-mode');
+  const isTableMode = className?.includes('table-mode');
+
+  // Charger les images existantes
+  useEffect(() => {
+    loadExistingImages();
+  }, [inventaireId]);
+
+  const loadExistingImages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('package_images')
+        .select('*')
+        .eq('inventaire_id', inventaireId)
+        .eq('image_type', imageType)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Erreur lors du chargement des images:', error);
+        return;
+      }
+
+      setImages(data || []);
+      onImagesChange?.(data?.length || 0);
+    } catch (error) {
+      console.error('Erreur inattendue:', error);
+    }
+  };
+
+  const validateFile = (file: File): { isValid: boolean; error: string } => {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+
+    if (file.size > maxSize) {
+      return {
+        isValid: false,
+        error: `Le fichier ${file.name} est trop volumineux (max 10MB)`
+      };
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+      return {
+        isValid: false,
+        error: `Type de fichier non supporté pour ${file.name}. Types autorisés: JPG, PNG, WebP, GIF`
+      };
+    }
+
+    return { isValid: true, error: '' };
+  };
+
+  const uploadImage = async (file: File): Promise<{ success: boolean; error?: string }> => {
+    try {
+      // Validation du fichier
+      const validation = validateFile(file);
+      if (!validation.isValid) {
+        return { success: false, error: validation.error };
+      }
+
+      // Vérifier l'authentification
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        return { success: false, error: 'Utilisateur non authentifié' };
+      }
+
+      // Optimiser l'image avant l'upload (réduit la taille, évite les transformations serveur)
+      const optimized = await optimizeImage(file, { maxWidth: 1920, maxHeight: 1080, quality: 0.8, format: 'jpeg' });
+
+      // Générer un nom de fichier unique
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
+      const filePath = `inventaire/${inventaireId}/${imageType}/${fileName}`;
+
+      // Upload du fichier vers Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('package-images')
+        .upload(filePath, optimized, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: 'image/jpeg'
+        });
+
+      if (uploadError) {
+        return { success: false, error: `Erreur d'upload: ${uploadError.message}` };
+      }
+
+      // Enregistrer les métadonnées en base
+      const { data: imageData, error: dbError } = await supabase
+        .from('package_images')
+        .insert({
+          inventaire_id: inventaireId,
+          file_name: file.name,
+          file_path: filePath,
+          file_size: optimized.size,
+          mime_type: 'image/jpeg',
+          image_type: imageType,
+          uploaded_by: user.id
+        })
+        .select()
+        .single();
+
+      if (dbError) {
+        // Nettoyer le fichier uploadé en cas d'erreur DB
+        await supabase.storage.from('package-images').remove([filePath]);
+        return { success: false, error: `Erreur base de données: ${dbError.message}` };
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: `Erreur inattendue: ${error}` };
+    }
+  };
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    // Vérifier la limite d'images
+    if (images.length + files.length > maxImages) {
+      setErrors([`Maximum ${maxImages} images autorisées`]);
+      return;
+    }
+
+    setUploading(true);
+    setErrors([]);
+
+    const uploadErrors: string[] = [];
+    let successCount = 0;
+
+    for (const file of files) {
+      const result = await uploadImage(file);
+      if (result.success) {
+        successCount++;
+      } else {
+        uploadErrors.push(result.error || `Erreur pour ${file.name}`);
+      }
+    }
+
+    if (uploadErrors.length > 0) {
+      setErrors(uploadErrors);
+    }
+
+    if (successCount > 0) {
+      // Recharger les images
+      await loadExistingImages();
+    }
+
+    setUploading(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDeleteImage = async (imageId: string, filePath: string) => {
+    try {
+      // Supprimer le fichier du storage
+      const { error: storageError } = await supabase.storage
+        .from('package-images')
+        .remove([filePath]);
+
+      if (storageError) {
+        console.warn('Erreur suppression storage:', storageError.message);
+      }
+
+      // Supprimer les métadonnées
+      const { error: dbError } = await supabase
+        .from('package_images')
+        .delete()
+        .eq('id', imageId);
+
+      if (dbError) {
+        setErrors([`Erreur lors de la suppression: ${dbError.message}`]);
+        return;
+      }
+
+      // Recharger les images
+      await loadExistingImages();
+    } catch (error) {
+      setErrors([`Erreur de suppression: ${error}`]);
+    }
+  };
+
+  const handlePreviewImage = async (filePath: string) => {
+    try {
+      // Créer une URL signée pour l'image
+      const { data, error } = await supabase.storage
+        .from('package-images')
+        .createSignedUrl(filePath, 3600); // 1 heure
+
+      if (error) {
+        setErrors([`Impossible de charger l'image: ${error.message}`]);
+        return;
+      }
+
+      setPreviewImage(data.signedUrl);
+    } catch (error) {
+      setErrors([`Erreur de prévisualisation: ${error}`]);
+    }
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getImageTypeLabel = (type: string): string => {
+    const labels = {
+      general: 'Général',
+      msds: 'MSDS',
+      chargement: 'Chargement',
+      suivi_maritime: 'Suivi Maritime',
+      reception: 'Réception'
+    };
+    return labels[type as keyof typeof labels] || type;
+  };
+
+  return (
+    <div className={`space-y-4 ${className}`}>
+      {/* Interface simplifiée pour le mode tableau */}
+      {isTableMode ? (
+        <div className="space-y-2">
+          {/* Compteur et bouton d'upload compact */}
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-600 font-medium">
+              {images.length}/{maxImages} images
+            </span>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading || images.length >= maxImages}
+              className="text-xs text-blue-600 hover:text-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed flex items-center space-x-1"
+            >
+              <Upload className="w-3 h-3" />
+              <span>{uploading ? 'Upload...' : 'Ajouter'}</span>
+            </button>
+          </div>
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+            onChange={handleFileSelect}
+            className="hidden"
+            disabled={uploading || images.length >= maxImages}
+          />
+        </div>
+      ) : (
+        /* Zone d'upload normale pour les autres modes */
+        <div className={`border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-blue-400 transition-colors ${
+          isCompactMode ? 'p-2' : 'p-6'
+        }`}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+            onChange={handleFileSelect}
+            className="hidden"
+            disabled={uploading || images.length >= maxImages}
+          />
+          
+          <div className={isCompactMode ? 'space-y-1' : 'space-y-2'}>
+            <Upload className={`text-gray-400 mx-auto ${isCompactMode ? 'w-4 h-4' : 'w-8 h-8'}`} />
+            <div>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading || images.length >= maxImages}
+                className={`text-blue-600 hover:text-blue-700 font-medium disabled:text-gray-400 disabled:cursor-not-allowed ${
+                  isCompactMode ? 'text-xs' : 'text-sm'
+                }`}
+              >
+                {uploading ? 'Upload en cours...' : 'Cliquer pour sélectionner'}
+              </button>
+              {!isCompactMode && (
+                <p className="text-sm text-gray-500 mt-1">
+                  ou glisser-déposer vos images ici
+                </p>
+              )}
+            </div>
+            <p className={`text-gray-400 ${isCompactMode ? 'text-xs' : 'text-xs'}`}>
+              JPG, PNG, WebP, GIF jusqu'à 10MB • {images.length}/{maxImages} images
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Messages d'erreur */}
+      {errors.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+          <div className="flex items-start space-x-2">
+            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+            <div className="space-y-1">
+              {errors.map((error, index) => (
+                <p key={index} className="text-sm text-red-700">{error}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Liste des images */}
+      {images.length > 0 && (
+        <div className={isTableMode ? 'space-y-1' : isCompactMode ? 'space-y-1' : 'space-y-3'}>
+          {!isTableMode && (
+            <h4 className={`font-medium text-gray-700 flex items-center space-x-1 ${
+              isCompactMode ? 'text-xs' : 'text-sm'
+            }`}>
+              <ImageIcon className={isCompactMode ? 'w-3 h-3' : 'w-4 h-4'} />
+              <span>Images ({images.length})</span>
+            </h4>
+          )}
+          
+          <div className={`grid gap-1 ${
+            isTableMode ? 'grid-cols-1' : isCompactMode ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3'
+          }`}>
+            {images.map((image) => (
+              <div key={image.id} className={`bg-white border border-gray-200 rounded shadow-sm ${
+                isTableMode ? 'p-1' : isCompactMode ? 'p-2' : 'p-3'
+              }`}>
+                <div className={`flex items-start justify-between ${isTableMode ? 'mb-1' : 'mb-2'}`}>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-medium text-gray-900 truncate ${
+                      isTableMode ? 'text-xs' : isCompactMode ? 'text-xs' : 'text-sm'
+                    }`}>
+                      {image.file_name}
+                    </p>
+                    <p className={`text-gray-500 ${isTableMode ? 'text-xs' : isCompactMode ? 'text-xs' : 'text-xs'}`}>
+                      {formatFileSize(image.file_size)}
+                    </p>
+                    {!isCompactMode && !isTableMode && (
+                      <p className="text-xs text-gray-400">
+                        {new Date(image.created_at).toLocaleDateString('fr-FR')}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleDeleteImage(image.id, image.file_path)}
+                    className={`text-red-600 hover:text-red-800 ${isTableMode ? 'p-0.5' : isCompactMode ? 'p-0.5' : 'p-1'}`}
+                    title="Supprimer l'image"
+                  >
+                    <X className={isTableMode ? 'w-2.5 h-2.5' : isCompactMode ? 'w-3 h-3' : 'w-4 h-4'} />
+                  </button>
+                </div>
+                
+                <div className={`flex items-center ${isTableMode ? 'justify-center' : isCompactMode ? 'space-x-1' : 'space-x-2'}`}>
+                  <button
+                    onClick={() => handlePreviewImage(image.file_path)}
+                    className={`flex items-center space-x-1 text-blue-600 hover:text-blue-800 ${
+                      isTableMode ? 'text-xs' : isCompactMode ? 'text-xs' : 'text-xs'
+                    }`}
+                  >
+                    <Eye className={isTableMode ? 'w-2.5 h-2.5' : isCompactMode ? 'w-2.5 h-2.5' : 'w-3 h-3'} />
+                    <span>Voir</span>
+                  </button>
+                  
+                  {!isTableMode && (
+                    <div className={`flex items-center space-x-1 text-green-600 ${
+                      isCompactMode ? 'text-xs' : 'text-xs'
+                    }`}>
+                      <CheckCircle className={isCompactMode ? 'w-2.5 h-2.5' : 'w-3 h-3'} />
+                      <span>Uploadé</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Modal de prévisualisation */}
+      {previewImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold">Prévisualisation</h3>
+              <button
+                onClick={() => setPreviewImage(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="p-4">
+              <img
+                src={previewImage}
+                alt="Prévisualisation"
+                className="max-w-full max-h-96 object-contain mx-auto"
+              />
+            </div>
+            
+            <div className="flex justify-end p-4 border-t bg-gray-50">
+              <button
+                onClick={() => setPreviewImage(null)}
+                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

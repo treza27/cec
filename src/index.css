@@ -1,0 +1,251 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+
+  /* Correction globale pour éviter la coupure des lettres avec jambages descendants */
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.4 !important;
+  }
+
+  p, span, div {
+    line-height: 1.6 !important;
+  }
+
+  /* Assurer un padding vertical minimal pour tous les textes */
+  .text-4xl, .text-5xl, .text-6xl {
+    padding-top: 0.125rem;
+    padding-bottom: 0.125rem;
+  }
+
+  .text-2xl, .text-3xl {
+    padding-top: 0.0625rem;
+    padding-bottom: 0.0625rem;
+  }
+}
+
+@layer utilities {
+  /* Animations 3D subtiles */
+
+  /* Flottement doux en 3D */
+  @keyframes float-3d {
+    0%, 100% {
+      transform: perspective(1000px) translateY(0px) rotateX(0deg) rotateY(0deg);
+    }
+    25% {
+      transform: perspective(1000px) translateY(-10px) rotateX(2deg) rotateY(-2deg);
+    }
+    50% {
+      transform: perspective(1000px) translateY(-15px) rotateX(0deg) rotateY(0deg);
+    }
+    75% {
+      transform: perspective(1000px) translateY(-10px) rotateX(-2deg) rotateY(2deg);
+    }
+  }
+
+  /* Rotation 3D douce */
+  @keyframes rotate-3d {
+    0% {
+      transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+    }
+    100% {
+      transform: perspective(1000px) rotateY(360deg) rotateX(360deg);
+    }
+  }
+
+  /* Oscillation 3D */
+  @keyframes swing-3d {
+    0%, 100% {
+      transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
+    }
+    50% {
+      transform: perspective(1000px) rotateY(5deg) rotateX(-2deg);
+    }
+  }
+
+  /* Pulsation 3D */
+  @keyframes pulse-3d {
+    0%, 100% {
+      transform: perspective(1000px) scale3d(1, 1, 1);
+      opacity: 1;
+    }
+    50% {
+      transform: perspective(1000px) scale3d(1.05, 1.05, 1.05);
+      opacity: 0.9;
+    }
+  }
+
+  /* Vague 3D */
+  @keyframes wave-3d {
+    0% {
+      transform: perspective(1000px) translateZ(0px) rotateX(0deg);
+    }
+    25% {
+      transform: perspective(1000px) translateZ(20px) rotateX(10deg);
+    }
+    50% {
+      transform: perspective(1000px) translateZ(0px) rotateX(0deg);
+    }
+    75% {
+      transform: perspective(1000px) translateZ(-20px) rotateX(-10deg);
+    }
+    100% {
+      transform: perspective(1000px) translateZ(0px) rotateX(0deg);
+    }
+  }
+
+  /* Inclinaison hover 3D */
+  .card-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .card-3d:hover {
+    transform: perspective(1000px) rotateY(5deg) rotateX(5deg) translateZ(20px);
+  }
+
+  /* Classes utilitaires pour les animations */
+  .animate-float-3d {
+    animation: float-3d 6s ease-in-out infinite;
+  }
+
+  .animate-rotate-3d {
+    animation: rotate-3d 20s linear infinite;
+  }
+
+  .animate-swing-3d {
+    animation: swing-3d 4s ease-in-out infinite;
+  }
+
+  .animate-pulse-3d {
+    animation: pulse-3d 3s ease-in-out infinite;
+  }
+
+  .animate-wave-3d {
+    animation: wave-3d 5s ease-in-out infinite;
+  }
+
+  /* Perspective container */
+  .perspective-container {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+  }
+
+  /* Effets de profondeur */
+  .depth-layer-1 {
+    transform: translateZ(20px);
+  }
+
+  .depth-layer-2 {
+    transform: translateZ(40px);
+  }
+
+  .depth-layer-3 {
+    transform: translateZ(60px);
+  }
+
+  /* Animation slide-up pour la barre d'actions */
+  @keyframes slide-up {
+    from {
+      transform: translate(-50%, 100px);
+      opacity: 0;
+    }
+    to {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.25s ease-out;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #devis-print-area,
+  #devis-print-area * {
+    visibility: visible;
+  }
+
+  #devis-print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .devis-page {
+    page-break-after: auto;
+  }
+
+  table {
+    page-break-inside: auto;
+    width: 100%;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  .devis-totaux-block {
+    page-break-inside: avoid;
+  }
+
+  .devis-conditions-block {
+    page-break-inside: avoid;
+  }
+
+  .devis-footer-block {
+    page-break-inside: avoid;
+  }
+}

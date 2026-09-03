@@ -1,0 +1,1 @@
+ALTER TYPE photo_tag ADD VALUE IF NOT EXISTS 'inventaire_depot';
